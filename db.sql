@@ -10,8 +10,6 @@ CREATE TABLE IF NOT EXISTS public.users
     password character varying(255) COLLATE pg_catalog."default",
     dob date,
     linkedin_url text COLLATE pg_catalog."default",
-    created_date timestamp without time zone,
-    login_time timestamp without time zone,
     CONSTRAINT users_pkey PRIMARY KEY (id)
 )
 
