@@ -1,18 +1,14 @@
 package main
 
 import (
-	// "goauth/routes"
-	"fmt"
-	"goauth/controllers"
-
-	"github.com/gin-gonic/gin"
+	"goauth/config"
+	"goauth/routes"
 )
 
 func main() {
-	// routes.SetUpRoutes()
-	r := gin.Default()
-	r.GET("/signin", controllers.SignIn)
-	r.GET("/signup", controllers.SignUp)
+	config.SetUpDB()
+	r := routes.SetUpRoutes()
+
 	r.Run()
-	fmt.Println("hello")
+
 }

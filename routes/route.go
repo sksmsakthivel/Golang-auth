@@ -6,9 +6,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SetUpRoutes() {
+func SetUpRoutes() *gin.Engine {
 	r := gin.Default()
 	r.POST("/signin", controllers.SignIn)
 	r.POST("/signup", controllers.SignUp)
-	// return r
+	r.GET("/get-user/:id", controllers.GetUserById)
+	return r
 }
