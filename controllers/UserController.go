@@ -45,7 +45,7 @@ func SignUp(c *gin.Context) {
 	var user models.User
 
 	c.ShouldBindWith(&user, binding.Form)
-	fmt.Println("Password:", user)
+
 	var validateErr = models.Validate(user)
 
 	Password := strings.TrimSpace(user.Password)
