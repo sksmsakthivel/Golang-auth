@@ -1,20 +1,22 @@
 package controllers
 
 import (
-	"encoding/json"
 	"fmt"
 	"goauth/auth"
 	"goauth/models"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
+	"golang.org/x/crypto/bcrypt"
 )
 
 /* signin the log in credentials*/
 func SignIn(c *gin.Context) {
 
-	userName, Password := c.PostForm("userName"), c.PostForm("password")
+	userName, Password := strings.TrimSpace(c.PostForm("userName")), strings.TrimSpace(c.PostForm("password"))
 
 	if userName == "" || Password == "" {
 		c.JSON(400, gin.H{"status": 0, "message": "userName and password is required"})
@@ -26,7 +28,9 @@ func SignIn(c *gin.Context) {
 		return
 	}
 	fmt.Println("pass:", user, Password)
-	if auth.CheckPasswordHash(Password, user.Password) {
+	errr := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(Password))
+
+	if errr != nil {
 		c.JSON(400, gin.H{"status": 0, "message": "your password is incorrect"})
 		return
 	}
@@ -39,17 +43,25 @@ func SignIn(c *gin.Context) {
 /*signup the register the user*/
 func SignUp(c *gin.Context) {
 	var user models.User
-	json.NewDecoder(c.Request.Body).Decode(&user)
+
+	c.ShouldBindWith(&user, binding.Form)
+	fmt.Println("Password:", user)
 	var validateErr = models.Validate(user)
-	Password := c.PostForm("password")
-	if Password != "" {
-		validateErr = append(validateErr, "Password is required")
-	}
+
+	Password := strings.TrimSpace(user.Password)
+
+	fmt.Println("passwporf:", Password)
 	if len(validateErr) != 0 {
 		c.JSON(400, gin.H{"status": 0, "message": validateErr})
 		return
 	}
-	user.Password, _ = auth.HashPassword(Password)
+	user.UserName = strings.TrimSpace(user.UserName)
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(Password), bcrypt.DefaultCost)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(string(hashedPassword))
+	user.Password = string(hashedPassword)
 	user.DOB, _ = time.Parse("02-01-2006", user.DateOfBirth)
 
 	succesUser, err := models.CreateUser(&user)
@@ -69,5 +81,6 @@ func GetUserById(c *gin.Context) {
 		c.JSON(400, gin.H{"status": 0, "message": "you are not registered with us"})
 		return
 	}
+	user.DateOfBirth = user.DOB.Format("02-01-2006")
 	c.JSON(200, gin.H{"status": 1, "message": "get the user details", "data": user})
 }

@@ -10,12 +10,12 @@ import (
 
 type User struct {
 	Id          int
-	Name        string    `json:"name" gorm:"default:null"`
-	UserName    string    `json:"userName" gorm:"default:null"`
-	Password    string    `json:"-" gorm:"default:null"`
-	DOB         time.Time `json:"-" gorm:"default:null"`
-	DateOfBirth string    `json:"dob" gorm:"-"`
-	LinkedinUrl string    `json:"linkedinUrl" gorm:"default:null"`
+	Name        string    `form:"name" gorm:"default:null" binding:"required"`
+	UserName    string    `form:"userName" gorm:"default:null" binding:"required"`
+	Password    string    `form:"password" json:"-" gorm:"default:null" binding:"required"`
+	DOB         time.Time ` json:"-" gorm:"default:null"`
+	DateOfBirth string    `form:"dob" gorm:"-" binding:"required"`
+	LinkedinUrl string    `form:"linkedinUrl"  gorm:"default:null" binding:"required"`
 }
 
 var DB = config.SetUpDB()
@@ -29,7 +29,9 @@ func Validate(u User) []string {
 	if u.UserName == "" {
 		msg = append(msg, "User Name is Required")
 	}
-
+	if u.Password == "" {
+		msg = append(msg, "Password is Required")
+	}
 	if u.DateOfBirth == "" {
 		msg = append(msg, "DOB is Required")
 	} else {
